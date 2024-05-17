@@ -42,3 +42,11 @@ async def _get_products_by_subcategory(subcategory_name):
             product_dal = ProductDAL(session)
             products = await product_dal.get_products_by_subcategory(subcategory_name=subcategory_name)
             return products
+
+
+async def _get_products_by_id(product_id):
+    async with async_session() as session:
+        async with session.begin():
+            product_dal = ProductDAL(session)
+            products = await product_dal.get_products_by_id(product_id=product_id)
+            return products

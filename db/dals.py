@@ -63,3 +63,8 @@ class ProductDAL:
         product_row = res.fetchall()
         return product_row
 
+    async def get_products_by_id(self, product_id: str):
+        query = select(Product).where(Product.id == product_id)
+        res = await self.db_session.execute(query)
+        product_row = res.fetchall()
+        return product_row
