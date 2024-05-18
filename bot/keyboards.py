@@ -12,7 +12,6 @@ def get_choice_keyboard():
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
 
-@cache
 async def get_for_paginate_category_keyboard(page: int = 0):
     start_index = page * int(ITEMS_PER_PAGE)
     end_index = start_index + int(ITEMS_PER_PAGE)
@@ -32,7 +31,6 @@ async def get_for_paginate_category_keyboard(page: int = 0):
     return keyboard
 
 
-@cache
 async def get_for_paginate_subcategory_keyboard(page: int = 0, category_id: str = None):
     start_index = page * int(ITEMS_PER_PAGE)
     end_index = start_index + int(ITEMS_PER_PAGE)

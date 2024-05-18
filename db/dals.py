@@ -17,6 +17,12 @@ class ClientDAL:
         await self.db_session.flush()
         return new_client
 
+    async def get_client_by_tg_id(self, tg_id: str):
+        query = select(Client).where(Client.tg_id == tg_id)
+        res = await self.db_session.execute(query)
+        client_row = res.fetchall()
+        return client_row
+
 
 class OrderDAL:
     def __init__(self, db_session: AsyncSession):

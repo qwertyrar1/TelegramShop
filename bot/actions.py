@@ -1,14 +1,23 @@
 from db.session import async_session
 from db.dals import ClientDAL, OrderDAL, ProductDAL, CategoryDAL, SubcategoryDAL
 import uuid
+import asyncio
 
 
 async def _create_new_client(tg_id):
     async with async_session() as session:
         async with session.begin():
             client_dal = ClientDAL(session)
-            book = await client_dal.create_client(tg_id=tg_id)
-            return book.tg_id
+            client = await client_dal.create_client(tg_id=tg_id)
+            return client.tg_id
+
+
+async def _get_client_by_tg_id(tg_id):
+    async with async_session() as session:
+        async with session.begin():
+            client_dal = ClientDAL(session)
+            client = await client_dal.get_client_by_tg_id(tg_id=tg_id)
+            return client
 
 
 async def _create_new_order(cart, client_id, delivery_address):
@@ -44,9 +53,9 @@ async def _get_products_by_subcategory(subcategory_name):
             return products
 
 
-async def _get_products_by_id(product_id):
+async def _get_product_by_id(product_id):
     async with async_session() as session:
         async with session.begin():
             product_dal = ProductDAL(session)
             products = await product_dal.get_products_by_id(product_id=product_id)
-            return products
+            return products[0][0]

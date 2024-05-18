@@ -5,6 +5,7 @@ from bot.keyboards import get_choice_keyboard
 from aiogram.filters import Command
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
+from bot.actions import _get_client_by_tg_id, _create_new_client
 
 router = Router()
 
@@ -19,5 +20,8 @@ async def cmd_start(message: Message, state: FSMContext, bot: Bot):
     else:
         await bot.send_message(message.from_user.id, f'Пожалуйста подпишитесь на канал {FOLLOW_CHAT_ID}')
     '''
+    client_in_db = await _get_client_by_tg_id(str(message.from_user.id))
+    if len(client_in_db) == 0:
+        await _create_new_client(str(message.from_user.id))
     await state.set_state(OrderStates.choose_action)
     await message.answer('Выбери действие:', reply_markup=get_choice_keyboard())
