@@ -22,3 +22,4 @@ class OrderStates(StatesGroup):
     get_amount = State()
     get_address = State()
     create_order = State()
+    faq = State()
