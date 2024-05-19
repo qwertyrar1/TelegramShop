@@ -21,5 +21,11 @@ def create_payment(price: int):
 
     url = payment.confirmation.confirmation_url
 
-    return url
+    return url, payment
 
+
+def payment_check(id):
+    payment = yookassa.Payment.find_one(id)
+    if payment.status == 'succeeded':
+        return True
+    return False

@@ -2,7 +2,7 @@ from aiogram import Router, F
 from aiogram.types import (Message, InlineQuery,)
 from settings import OrderStates
 from aiogram.fsm.context import FSMContext
-from bot.query_results import get_query_results
+from query_results import get_query_results
 
 router = Router()
 

@@ -1,10 +1,11 @@
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery, FSInputFile, InlineKeyboardButton, \
     InlineKeyboardMarkup
-from settings import OrderStates, IMAGE_PATH
+from settings import OrderStates, IMAGE_PATH, EXCEL_FILE_PATH
 from aiogram.fsm.context import FSMContext
 from bot.actions import _get_product_by_id, _create_new_order, _get_client_by_tg_id
-from pay import create_payment
+from pay import create_payment, payment_check
+from work_with_excel import add_to_excel
 import uuid
 
 router = Router()
@@ -32,17 +33,17 @@ async def create_order(message: Message, state: FSMContext):
     await state.set_state(OrderStates.create_order)
     data = await state.get_data()
     client = await _get_client_by_tg_id(str(message.from_user.id))
+    await state.update_data(data={'client': client, 'pay_text': message.text})
     cart = [[i[0], str(i[1])] for i in data.get('cart')]
     price = 0
     for i in cart:
         product = await _get_product_by_id(i[0])
         price += product.price * int(i[1])
-    await _create_new_order(cart, str(client[0][0].id), message.text)
-    url = create_payment(price)
-    pay_button = [[InlineKeyboardButton(text='Оплатить', url=url)]]
+    url, payment = create_payment(price)
+    await state.update_data(data={'payment': payment})
+    pay_button = [[InlineKeyboardButton(text='Оплатить', url=url),
+                   InlineKeyboardButton(text='Подтвердить оплату', callback_data='complete_payment')]]
     await message.answer('Ссылка на платеж:', reply_markup=InlineKeyboardMarkup(inline_keyboard=pay_button))
-    await state.update_data(data={'unconfirmed_cart': [], 'cart': []})
-    await state.set_state(OrderStates.choose_action)
 
 
 @router.callback_query(F.data.startswith('delete_cart_'))
@@ -66,3 +67,23 @@ async def get_address(call: CallbackQuery, state: FSMContext):
     else:
         await state.set_state(OrderStates.choose_action)
         await call.message.answer('Корзина пуста')
+
+
+@router.callback_query(OrderStates.create_order, F.data.startswith('complete_payment'))
+async def approve_payment(call: CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    payment = data.get('payment')
+    if payment_check(payment.id):
+        client = data.get('client')
+        cart = [[i[0], str(i[1])] for i in data.get('cart')]
+        price = 0
+        for i in cart:
+            product = await _get_product_by_id(i[0])
+            price += product.price * int(i[1])
+        order = await _create_new_order(cart, str(client[0][0].id), data.get('pay_text'))
+        add_to_excel(EXCEL_FILE_PATH, [str(order.id)])
+        await state.update_data(data={'unconfirmed_cart': [], 'cart': []})
+        await state.set_state(OrderStates.choose_action)
+        await call.message.answer('Платеж прошел успешно')
+    else:
+        await call.message.answer('Ошибка')

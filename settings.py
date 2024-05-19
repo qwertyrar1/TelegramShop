@@ -12,6 +12,7 @@ ITEMS_PER_PAGE = os.getenv("ITEMS_PER_PAGE")
 YOOKASSA_API_KEY = os.getenv("YOOKASSA_API_KEY")
 YOOKASSA_API_ID = os.getenv("YOOKASSA_API_ID")
 BOT_LINK = os.getenv("BOT_LINK")
+EXCEL_FILE_PATH = os.getenv("EXCEL_FILE_PATH")
 
 
 class OrderStates(StatesGroup):
