@@ -1,4 +1,4 @@
-from settings import BOT_TOKEN
+from settings import BOT_TOKEN, LOG_FILE
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher
@@ -7,7 +7,7 @@ from handlers import commands, catalog, cart, faq
 
 
 async def main():
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.INFO, filename=LOG_FILE)
 
     bot = Bot(token=BOT_TOKEN)
     dp = Dispatcher(storage=MemoryStorage())
